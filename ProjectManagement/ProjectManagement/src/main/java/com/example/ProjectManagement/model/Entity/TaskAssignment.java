@@ -11,7 +11,15 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "task_assignment")
+@Table(name = "task_assignment",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_task_assignment_user", columnNames = {"task_id", "user_id"})
+        },
+indexes = {@Index(name = "idx_task_assign_task_id", columnList = "task_id"),
+        @Index(name = "idx_task_assign_user_id", columnList = "user_id"),
+        @Index(name = "idx_assigned_by", columnList = "assigned_by"),
+        @Index(name = "idx_assignment_status", columnList = "assignment_status")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskAssignment {
@@ -34,7 +42,7 @@ public class TaskAssignment {
     private Users assignedBy;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "assignment_status")
     private AssignmentStatus status = AssignmentStatus.PENDING;
 
     @Column(name = "assigned_at", nullable = false)

@@ -12,7 +12,13 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "task_activity")
+@Table(name = "task_activity",
+indexes = {@Index(name = "idx_task_act_user_id", columnList = "user_id"),
+        @Index(name = "idx_task_act_task_id", columnList = "task_id"),
+        @Index(name = "idx_task_act_project_id", columnList = "project_id"),
+        @Index(name = "idx_action_type", columnList = "action_type"),
+        @Index(name = "idx_creation_time", columnList = "creation_time")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskActivity {

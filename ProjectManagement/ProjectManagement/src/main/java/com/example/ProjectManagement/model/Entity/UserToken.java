@@ -11,7 +11,12 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "user_token")
+@Table(name = "user_token",
+indexes = {
+        @Index(name = "idx_utoken_user_id", columnList = "user_id"),
+        @Index(name = "idx_utoken_expires_at", columnList = "expires_at"),
+        @Index(name = "idx_token_hash", columnList = "token_hash",unique = true)
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserToken {

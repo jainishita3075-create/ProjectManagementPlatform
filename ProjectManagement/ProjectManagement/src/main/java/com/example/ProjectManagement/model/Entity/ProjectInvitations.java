@@ -13,7 +13,13 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "project_invitation")
+@Table(name = "project_invitation",
+indexes = {
+        @Index(name = "idx_invite_project_id", columnList = "project_id"),
+        @Index(name = "idx_invited_user_id", columnList = "invited_user_id"),
+        @Index(name = "idx_invited_by", columnList = "invited_by"),
+        @Index(name = "idx_invitation_status", columnList = "invitation_status")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProjectInvitations {

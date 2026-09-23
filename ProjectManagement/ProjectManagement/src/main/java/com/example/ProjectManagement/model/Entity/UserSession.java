@@ -11,7 +11,12 @@ import java.time.Instant;
 
 @Entity
 @Data
-@Table(name = "user_session")
+@Table(name = "user_session",
+indexes = {@Index(name = "idx_usess_user_id", columnList = "user_id"),
+        @Index(name = "idx_refresh_token_hash", columnList = "refresh_token_hash", unique = true),
+        @Index(name = "idx_session_status", columnList = "session_status"),
+        @Index(name = "idx_usess_expires_at", columnList = "expires_at")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSession {
@@ -38,7 +43,7 @@ public class UserSession {
     @Column(name = "session_status")
     private SessionStatus sessionStatus;
 
-    @Column(name = "refresh_token", nullable = false, unique = true)
+    @Column(name = "refresh_token_hash", nullable = false, unique = true)
     private String refreshHashToken;
 
     @Column(name = "last_used")

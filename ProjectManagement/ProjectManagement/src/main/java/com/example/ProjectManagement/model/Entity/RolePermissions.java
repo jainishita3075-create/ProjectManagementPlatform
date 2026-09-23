@@ -8,7 +8,15 @@ import lombok.NoArgsConstructor;
 import javax.management.relation.Role;
 
 @Entity
-@Table(name = "role_permissions")
+@Table(name = "role_permissions",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_role_permission",
+                        columnNames = {"role_id", "permission_id"}
+                )},
+indexes = {@Index(name = "idx_role_id", columnList = "role_id"),
+        @Index(name = "idx_permission_id", columnList = "permission_id")
+})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

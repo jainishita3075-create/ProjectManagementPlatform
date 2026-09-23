@@ -16,7 +16,11 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="projects")
+@Table(name="projects",
+        indexes = {
+        @Index(name = "idx_owner_id", columnList = "owner_id", unique = true),
+        @Index(name = "idx_status", columnList = "status")}
+)
 public class Project {
 
     @Id

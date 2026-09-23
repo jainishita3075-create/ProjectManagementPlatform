@@ -13,7 +13,11 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "users")
+@Table(name = "users",
+        indexes = {
+                @Index(name = "idx_users_email", columnList = "email", unique = true),
+                @Index(name = "idx_users_username", columnList = "username", unique = true)
+        })
 @AllArgsConstructor
 @NoArgsConstructor
 public class Users {

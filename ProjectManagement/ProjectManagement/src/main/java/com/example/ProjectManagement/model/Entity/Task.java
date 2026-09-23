@@ -15,7 +15,15 @@ import java.time.Instant;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tasks")
+@Table(name = "tasks",
+        indexes = {
+                @Index(name = "idx_task_project_id", columnList = "project_id"),
+                @Index(name = "idx_parent_task_id", columnList = "parent_task_id"),
+                @Index(name = "idx_task_status", columnList = "task_status"),
+                @Index(name = "idx_task_priority", columnList = "priority"),
+                @Index(name = "idx_created_by", columnList = "created_by"),
+                @Index(name = "idx_due_date", columnList = "due_date")
+        })
 public class Task {
 
     @Id
@@ -38,7 +46,7 @@ public class Task {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
+    @Column(name = "task_status")
     private TaskStatus status = TaskStatus.ASSIGNED;
 
     @Enumerated(EnumType.STRING)

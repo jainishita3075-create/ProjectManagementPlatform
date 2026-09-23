@@ -13,7 +13,12 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "notification")
+@Table(name = "notification",
+indexes = {@Index(name = "idx_notf_user_id", columnList = "user_id"),
+        @Index(name = "idx_notf_task_id", columnList = "task_id"),
+        @Index(name = "idx_notf_project_id", columnList = "project_id"),
+        @Index(name = "idx_is_read", columnList = "is_read")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class Notification {

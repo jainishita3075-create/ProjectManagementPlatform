@@ -12,7 +12,12 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "recurring_task_rule")
+@Table(name = "recurring_task_rule",
+indexes = {
+        @Index(name = "idx_recc_task_id", columnList = "task_id", unique = true),
+        @Index(name = "idx_next_run_at", columnList = "next_run_at"),
+        @Index(name = "idx_is_active", columnList = "is_active")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecurringTaskRules {

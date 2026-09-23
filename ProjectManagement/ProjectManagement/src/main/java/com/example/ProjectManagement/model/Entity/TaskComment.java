@@ -9,7 +9,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.Instant;
 
 @Entity
-@Table(name = "task_comment")
+@Table(name = "task_comment",
+indexes = {
+        @Index(name = "idx_task_comm_task_id", columnList = "task_id"),
+        @Index(name = "idx_task_comm_user_id", columnList = "user_id"),
+        @Index(name = "idx_parent_comment_id", columnList = "parent_comment_id")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskComment {

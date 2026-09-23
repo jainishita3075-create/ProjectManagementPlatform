@@ -12,7 +12,10 @@ import java.time.Instant;
 
 @Data
 @Entity
-@Table(name = "task_attachments")
+@Table(name = "task_attachments",
+indexes = {@Index(name = "idx_task_attch_task_id", columnList = "task_id"),
+        @Index(name = "idx_uploaded_by", columnList = "uploaded_by")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaskAttachments {
