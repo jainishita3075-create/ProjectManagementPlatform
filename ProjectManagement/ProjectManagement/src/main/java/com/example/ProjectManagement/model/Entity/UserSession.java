@@ -30,11 +30,11 @@ public class UserSession {
     @JoinColumn(name = "user_id", nullable = false)
     private Users userId;
 
-    @Column(name = "login_time", nullable = false)
-    private Instant loginTime;
-
-    @Column(name = "logout_time")
-    private Instant logoutTime;
+//    @Column(name = "login_time", nullable = false)
+//    private Instant loginTime;
+//
+//    @Column(name = "logout_time")
+//    private Instant logoutTime;
 
     @Column(name = "ip_add", nullable = false)
     private String ipAddress;

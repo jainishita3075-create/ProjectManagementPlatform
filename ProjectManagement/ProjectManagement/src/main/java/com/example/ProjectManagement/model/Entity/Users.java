@@ -36,9 +36,9 @@ public class Users {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
-    private Roles roleId;
+//    @ManyToOne
+//    @JoinColumn(name = "role_id", nullable = false)
+//    private Roles roleId;
 
     @Column(name = "username", nullable = false, unique = true)
     private String userName;

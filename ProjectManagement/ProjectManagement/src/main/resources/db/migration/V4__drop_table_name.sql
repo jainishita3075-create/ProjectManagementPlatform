@@ -1,0 +1,11 @@
+-- DROP TABLE IF EXISTS user_token CASCADE;
+--
+-- ALTER TABLE user_session
+-- DROP COLUMN login_time,
+-- DROP COLUMN logout_time;
+--
+-- ALTER TABLE IF EXISTS users
+-- DROP CONSTRAINT IF EXISTS FKp56c1712k691lhsyewcssf40f;
+--
+-- ALTER TABLE users
+-- DROP COLUMN role_id;
