@@ -12,6 +12,7 @@ import com.example.ProjectManagement.model.Enum.NotificationTypeEnum;
 import com.example.ProjectManagement.repository.TaskAssignementRepo;
 import com.example.ProjectManagement.repository.TaskRepo;
 import com.example.ProjectManagement.repository.UserRepo;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class TaskAssignmentService {
     private TaskActivityService taskActivityService;
 
     @Transactional
+    @CacheEvict(value = "projectTasks", allEntries = true)
     public TaskAssignmentResponse assignTask(AssignTaskRequest request, String assignedByUsername){
         Users assignedBy = userRepo.findByUserName(assignedByUsername);
         if (assignedBy == null){

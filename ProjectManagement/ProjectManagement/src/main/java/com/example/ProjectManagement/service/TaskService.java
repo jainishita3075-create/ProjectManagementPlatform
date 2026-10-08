@@ -14,6 +14,8 @@ import com.example.ProjectManagement.model.Entity.TaskAssignment;
 import com.example.ProjectManagement.model.Entity.Users;
 import com.example.ProjectManagement.model.Enum.*;
 import com.example.ProjectManagement.repository.*;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +55,7 @@ public class TaskService {
     private ProjectMembersRepo projectMembersRepo;
 
     @Transactional
+    @CacheEvict(value = "projectTasks", allEntries = true)
     public TaskResponse createTask(CreateTaskRequest request, String username) {
         Users user = userRepo.findByUserName(username);
         if (user == null) {
@@ -125,6 +128,7 @@ public class TaskService {
         return PagedResponse.of(taskPage, content);
     }
 
+    @Cacheable(value = "projectTasks", key = "#projectId")
     public List<TaskResponse> getTasksByProjectId(Long projectId) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
@@ -141,6 +145,7 @@ public class TaskService {
     }
 
     @Transactional
+    @CacheEvict(value = "projectTasks", allEntries = true)
     public TaskResponse updateTaskStatus(Long taskId, UpdateTaskStatusRequest request, String username) {
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));
@@ -179,6 +184,7 @@ public class TaskService {
     }
 
     @Transactional
+    @CacheEvict(value = "projectTasks", allEntries = true)
     public TaskResponse updateTaskDueDate(Long taskId, UpdateDueDateRequest request, String username) {
         Task task = taskRepo.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + taskId));

@@ -100,18 +100,17 @@ export default function TasksPage() {
                     setCreateProjectId(projRes.data.content[0].projectId.toString());
                 }
 
-                const allTasks: Task[] = [];
-                for (const p of projRes.data.content) {
+                const taskPromises = projRes.data.content.map(async (p) => {
                     try {
                         const tRes = await apiFetch<PagedResponse<Task>>(`/api/tasks/project/${p.projectId}?size=50`);
-                        if (tRes.success && tRes.data) {
-                            allTasks.push(...tRes.data.content);
-                        }
-                    } catch (e) {
-                        console.error(e);
+                        return tRes.success && tRes.data ? tRes.data.content : [];
+                    } catch {
+                        return [];
                     }
-                }
-                setTasks(allTasks);
+                });
+
+                const taskResults = await Promise.all(taskPromises);
+                setTasks(taskResults.flat());
             }
         } catch (err) {
             console.error("Failed to load task board data", err);

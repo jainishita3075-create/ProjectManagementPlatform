@@ -17,6 +17,8 @@ import com.example.ProjectManagement.repository.ProjectMembersRepo;
 import com.example.ProjectManagement.repository.ProjectRepo;
 import com.example.ProjectManagement.repository.TaskRepo;
 import com.example.ProjectManagement.repository.UserRepo;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -65,6 +67,7 @@ public class ProjectService {
         return PagedResponse.of(projectPage, content);
     }
 
+    @Cacheable(value = "projects", key = "#username")
     public List<ProjectResponse> getUserProjects(String username) {
         Users user = userRepo.findByUserName(username);
         if (user == null) {
@@ -80,6 +83,7 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = {"projects", "projectById"}, allEntries = true)
     public ProjectResponse createProject(CreateProjectRequest request, String username) {
         Users owner = userRepo.findByUserName(username);
         if (owner == null) {
@@ -102,6 +106,7 @@ public class ProjectService {
         return mapToResponse(saved);
     }
 
+    @Cacheable(value = "projectById", key = "#id")
     public ProjectResponse getProjectById(Long id, String username) {
         Project project = projectRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
@@ -123,6 +128,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @CacheEvict(value = {"projects", "projectById"}, allEntries = true)
     public ProjectResponse updateProject(Long id, UpdateProjectRequest request, String username){
         Project project = projectRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
@@ -162,6 +168,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @CacheEvict(value = {"projects", "projectById"}, allEntries = true)
     public ProjectResponse archiveProject(Long id, String username) {
         Project project = projectRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));

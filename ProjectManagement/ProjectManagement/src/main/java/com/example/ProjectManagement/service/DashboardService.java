@@ -12,6 +12,7 @@ import com.example.ProjectManagement.model.Entity.Users;
 import com.example.ProjectManagement.model.Enum.ProjectStatus;
 import com.example.ProjectManagement.model.Enum.TaskStatus;
 import com.example.ProjectManagement.repository.*;
+import org.springframework.cache.annotation.Cacheable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class DashboardService {
     private final ProjectMembersRepo projectMembersRepo;
     private final TaskAssignementRepo taskAssignementRepo;
 
+    @Cacheable(value = "dashboardSummary", key = "#username")
     public DashboardSummaryResponse getDashboardSummary(String username) {
         Users currentUser = userRepo.findByUserName(username);
         if (currentUser == null) {

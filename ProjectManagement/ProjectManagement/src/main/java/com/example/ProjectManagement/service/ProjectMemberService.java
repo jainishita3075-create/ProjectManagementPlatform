@@ -14,9 +14,12 @@ import com.example.ProjectManagement.model.Enum.UserRole;
 import com.example.ProjectManagement.repository.ProjectMembersRepo;
 import com.example.ProjectManagement.repository.ProjectRepo;
 import com.example.ProjectManagement.repository.UserRepo;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +37,8 @@ public class ProjectMemberService {
     @Autowired
     private UserRepo userRepo;
 
+    @Transactional
+    @CacheEvict(value = "projectMembers", key = "#projectId")
     public ProjectMemberResponse addMember(Long projectId, AddProjectMemberRequest request, String currentUsername) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
@@ -59,6 +64,7 @@ public class ProjectMemberService {
         return mapToResponse(saved);
     }
 
+    @Cacheable(value = "projectMembers", key = "#projectId")
     public List<ProjectMemberResponse> getProjectMembers(Long projectId, String currentUsername) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
@@ -78,6 +84,8 @@ public class ProjectMemberService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    @CacheEvict(value = "projectMembers", key = "#projectId")
     public ProjectMemberResponse updateMemberRole(Long projectId, Long memberUserId, UpdateMemberRoleRequest request, String currentUsername) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
@@ -95,6 +103,8 @@ public class ProjectMemberService {
         return mapToResponse(updated);
     }
 
+    @Transactional
+    @CacheEvict(value = "projectMembers", key = "#projectId")
     public void removeMember(Long projectId, Long memberUserId, String currentUsername) {
         Project project = projectRepo.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));

@@ -18,6 +18,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,9 +44,8 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-//    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserResponse register(RegisterRequest request){
         if (repo.findByUserName(request.getUsername()) != null) {
             throw new BadRequestException("Username is already taken: " + request.getUsername());
@@ -82,6 +83,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserResponse updateProfile(String name, String username) {
         Users user = repo.findByUserName(username);
         if (user == null) {
@@ -95,6 +97,7 @@ public class UserService {
     }
 
     @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public UserResponse updateUserRole(Long userId, UpdateUserRoleRequest request, String adminUsername) {
         Users targetUser = repo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
@@ -150,6 +153,7 @@ public class UserService {
         repo.save(user);
     }
 
+    @Cacheable(value = "users")
     public List<UserResponse> getAllUsers() {
         return repo.findAll().stream()
                 .map(this::mapToResponse)
