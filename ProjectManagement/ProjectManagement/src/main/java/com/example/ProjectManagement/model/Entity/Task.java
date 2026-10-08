@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Data
@@ -68,6 +69,9 @@ public class Task {
 
     @Column(name = "is_recurring", nullable = false)
     private boolean recurring = false;
+
+    @Column(name = "estimated_effort_hours")
+    private BigDecimal estimatedEffortHours = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "archived_by")

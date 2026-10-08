@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserPrincipal implements UserDetails {
@@ -21,11 +22,14 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Roles role = user.getRoleId();
-        if(role == null || role.getRole() == null){
+        Set<Roles> role = user.getRoles();
+        if(role == null || role.isEmpty()){
             return List.of();
         }
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.getRole().name()));
+        return role.stream()
+                .map(roles -> roles.getRole())
+                .map(userRole -> new SimpleGrantedAuthority("ROLE_" + userRole.name()))
+                .collect(Collectors.toSet());
     }
 
     @Override

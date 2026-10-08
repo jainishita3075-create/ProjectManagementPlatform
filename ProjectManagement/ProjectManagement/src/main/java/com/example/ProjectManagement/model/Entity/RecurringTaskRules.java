@@ -29,7 +29,7 @@ public class RecurringTaskRules {
 
     @ManyToOne
     @JoinColumn(name = "task_id", unique = true, nullable = false)
-    private Task taskId;
+    private Task task;
 
     @Column(name = "frequency", nullable = false)
     private String frequency;

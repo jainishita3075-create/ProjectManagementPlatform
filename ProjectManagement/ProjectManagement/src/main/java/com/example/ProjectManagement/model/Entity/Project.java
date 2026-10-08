@@ -18,7 +18,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Table(name="projects",
         indexes = {
-        @Index(name = "idx_owner_id", columnList = "owner_id", unique = true),
+        @Index(name = "idx_owner_id", columnList = "owner_id"),
         @Index(name = "idx_status", columnList = "status")}
 )
 public class Project {
@@ -35,7 +35,7 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "owner_id",nullable = false)
-    private Users owner_id;
+    private Users owner;
     @Column(name = "start_date")
     private Instant startDate;
     @Column(name = "end_date")

@@ -1,15 +1,14 @@
 package com.example.ProjectManagement.model.Entity;
 
-import com.example.ProjectManagement.model.Enum.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.Set;
 
 @Data
 @Entity
@@ -35,10 +34,6 @@ public class Users {
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
-
-//    @ManyToOne
-//    @JoinColumn(name = "role_id", nullable = false)
-//    private Roles roleId;
 
     @Column(name = "username", nullable = false, unique = true)
     private String userName;
@@ -68,4 +63,12 @@ public class Users {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Roles> roles;
 }

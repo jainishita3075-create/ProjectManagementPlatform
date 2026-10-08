@@ -30,15 +30,15 @@ public class TaskActivity {
 
     @ManyToOne
     @JoinColumn(name = "task_id", nullable = false)
-    private Task taskId;
+    private Task task;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users userId;
+    private Users user;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    private Project proj_id;
+    private Project project;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "action_type", nullable = false)
