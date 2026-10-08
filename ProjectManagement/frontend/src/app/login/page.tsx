@@ -4,33 +4,25 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Lock, User, Mail, AlertCircle, CheckCircle2, ArrowRight, Eye, EyeOff } from "lucide-react";
 
+const rawBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080").replace(/\/$/, "");
+
 export default function LoginPage() {
     const { login } = useAuth();
-    const [mode, setMode] = useState<"login" | "register">("login");
 
     // Login Form State
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
-    // Register Form State
-    const [regName, setRegName] = useState("");
-    const [regEmail, setRegEmail] = useState("");
-    const [regUsername, setRegUsername] = useState("");
-    const [regPassword, setRegPassword] = useState("");
-
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        setSuccessMessage(null);
         setLoading(true);
 
         try {
-            const res = await fetch("http://localhost:8080/login", {
+            const res = await fetch(`${rawBaseUrl}/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
@@ -70,51 +62,13 @@ export default function LoginPage() {
 
             login(token, username);
         } catch (err: any) {
-            setError(err.message || "Failed to login. Please check your credentials.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleRegister = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccessMessage(null);
-        setLoading(true);
-
-        try {
-            const res = await fetch("http://localhost:8080/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    name: regName,
-                    email: regEmail,
-                    username: regUsername,
-                    password: regPassword,
-                }),
-            });
-
-            const text = await res.text();
-            let data: any = null;
-            try {
-                data = text ? JSON.parse(text) : null;
-            } catch {
-                data = text;
+            if (err.name === "TypeError" && err.message.includes("fetch")) {
+                setError(
+                    `Cannot connect to backend server at ${rawBaseUrl}. Please ensure your backend is running and CORS allows this domain.`
+                );
+            } else {
+                setError(err.message || "Failed to login. Please check your credentials.");
             }
-
-            if (!res.ok) {
-                const errorMsg =
-                    (data && typeof data === "object" && data.message) ||
-                    "Registration failed. Please check your details.";
-                throw new Error(errorMsg);
-            }
-
-            setSuccessMessage("Account created successfully! You can now sign in.");
-            setMode("login");
-            setUsername(regUsername);
-            setPassword("");
-        } catch (err: any) {
-            setError(err.message || "Registration failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -128,47 +82,11 @@ export default function LoginPage() {
                         P
                     </div>
                     <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
-                        {mode === "login" ? "Welcome back" : "Create an account"}
+                        Welcome back
                     </h1>
                     <p className="text-xs text-zinc-400 mt-1">
-                        {mode === "login"
-                            ? "Sign in to your team workspace"
-                            : "Register a new user to collaborate on projects"}
+                        Sign in to your team workspace
                     </p>
-                </div>
-
-                {/* Mode Selector Tabs */}
-                <div className="flex bg-[#101216] border border-zinc-800/80 rounded-xl p-1 mb-6">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setMode("login");
-                            setError(null);
-                            setSuccessMessage(null);
-                        }}
-                        className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                            mode === "login"
-                                ? "bg-zinc-800 text-zinc-100 shadow-sm"
-                                : "text-zinc-500 hover:text-zinc-300"
-                        }`}
-                    >
-                        Sign In
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setMode("register");
-                            setError(null);
-                            setSuccessMessage(null);
-                        }}
-                        className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                            mode === "register"
-                                ? "bg-zinc-800 text-zinc-100 shadow-sm"
-                                : "text-zinc-500 hover:text-zinc-300"
-                        }`}
-                    >
-                        Register New User
-                    </button>
                 </div>
 
                 {error && (
@@ -178,137 +96,53 @@ export default function LoginPage() {
                     </div>
                 )}
 
-                {successMessage && (
-                    <div className="mb-6 p-3 bg-emerald-950/30 border border-emerald-900/50 rounded-xl flex items-center gap-3 text-emerald-300 text-xs">
-                        <CheckCircle2 className="w-4 h-4 shrink-0" />
-                        <span>{successMessage}</span>
-                    </div>
-                )}
-
-                {mode === "login" ? (
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Username</label>
-                            <div className="relative">
-                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                                <input
-                                    type="text"
-                                    required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Enter username"
-                                    className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2.5 pl-10 pr-10 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1 cursor-pointer"
-                                >
-                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full mt-2 bg-zinc-200 hover:bg-white text-zinc-900 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-                        >
-                            {loading ? "Signing in..." : "Sign In"}
-                            {!loading && <ArrowRight className="w-4 h-4" />}
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleRegister} className="space-y-3.5">
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1">Full Name</label>
+                <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1.5">Username</label>
+                        <div className="relative">
+                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                             <input
                                 type="text"
                                 required
-                                value={regName}
-                                onChange={(e) => setRegName(e.target.value)}
-                                placeholder="e.g. John Doe"
-                                className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2 px-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Enter username"
+                                className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
                             />
                         </div>
+                    </div>
 
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-                                <input
-                                    type="email"
-                                    required
-                                    value={regEmail}
-                                    onChange={(e) => setRegEmail(e.target.value)}
-                                    placeholder="john@example.com"
-                                    className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2 pl-9 pr-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-                                />
-                            </div>
+                    <div>
+                        <label className="block text-xs font-medium text-zinc-400 mb-1.5">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2.5 pl-10 pr-10 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1 cursor-pointer"
+                            >
+                                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
                         </div>
+                    </div>
 
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1">Username</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-                                <input
-                                    type="text"
-                                    required
-                                    value={regUsername}
-                                    onChange={(e) => setRegUsername(e.target.value)}
-                                    placeholder="john_doe"
-                                    className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2 pl-9 pr-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-medium text-zinc-400 mb-1">Password</label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    required
-                                    value={regPassword}
-                                    onChange={(e) => setRegPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="w-full bg-[#111317] border border-zinc-800 rounded-xl py-2 pl-9 pr-9 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1 cursor-pointer"
-                                >
-                                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                                </button>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full mt-2 bg-zinc-200 hover:bg-white text-zinc-900 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer text-xs"
-                        >
-                            {loading ? "Registering..." : "Create Account"}
-                            {!loading && <ArrowRight className="w-3.5 h-3.5" />}
-                        </button>
-                    </form>
-                )}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-2 bg-zinc-200 hover:bg-white text-zinc-900 font-medium py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50 cursor-pointer text-sm"
+                    >
+                        {loading ? "Signing in..." : "Sign In"}
+                        {!loading && <ArrowRight className="w-4 h-4" />}
+                    </button>
+                </form>
             </div>
         </div>
     );

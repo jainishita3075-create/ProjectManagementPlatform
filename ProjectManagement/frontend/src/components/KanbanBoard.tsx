@@ -1,4 +1,4 @@
-const API = "http://localhost:8080";
+const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080").replace(/\/$/, "");
 
 async function loadTasks(projectId: number, token: string) {
   const response = await fetch(

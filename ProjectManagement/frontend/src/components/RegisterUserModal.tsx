@@ -25,8 +25,10 @@ export default function RegisterUserModal({ isOpen, onClose }: RegisterUserModal
         setError(null);
         setLoading(true);
 
+        const rawBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080").replace(/\/$/, "");
+
         try {
-            const res = await fetch("http://localhost:8080/register", {
+            const res = await fetch(`${rawBaseUrl}/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, username, password }),
