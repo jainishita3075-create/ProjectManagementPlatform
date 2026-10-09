@@ -9,6 +9,9 @@ import com.example.ProjectManagement.model.Entity.Users;
 import com.example.ProjectManagement.model.Enum.ActionTypeEnum;
 import com.example.ProjectManagement.model.Enum.AssignmentStatus;
 import com.example.ProjectManagement.model.Enum.NotificationTypeEnum;
+import com.example.ProjectManagement.model.Entity.ProjectMembers;
+import com.example.ProjectManagement.model.Enum.ProjectMemberRole;
+import com.example.ProjectManagement.repository.ProjectMembersRepo;
 import com.example.ProjectManagement.repository.TaskAssignementRepo;
 import com.example.ProjectManagement.repository.TaskRepo;
 import com.example.ProjectManagement.repository.UserRepo;
@@ -35,13 +38,16 @@ public class TaskAssignmentService {
     private TaskAssignementRepo assignementRepo;
 
     @Autowired
+    private ProjectMembersRepo projectMembersRepo;
+
+    @Autowired
     private NotificationService notificationService;
 
     @Autowired
     private TaskActivityService taskActivityService;
 
     @Transactional
-    @CacheEvict(value = "projectTasks", allEntries = true)
+    @CacheEvict(value = {"projectTasks", "projects", "projectById", "projectMembers"}, allEntries = true)
     public TaskAssignmentResponse assignTask(AssignTaskRequest request, String assignedByUsername){
         Users assignedBy = userRepo.findByUserName(assignedByUsername);
         if (assignedBy == null){
@@ -69,6 +75,16 @@ public class TaskAssignmentService {
         assignment.setAssignedAt(Instant.now());
         assignment.setDescription(request.getDescription());
         TaskAssignment saved = assignementRepo.save(assignment);
+
+        // Ensure assignee is also added as a project member so the project & task appear in their workspace
+        if (task.getProjId() != null && !projectMembersRepo.existsByProjIdAndUserId(task.getProjId(), assignee)) {
+            ProjectMembers pm = new ProjectMembers();
+            pm.setProjId(task.getProjId());
+            pm.setUserId(assignee);
+            pm.setMemberRole(ProjectMemberRole.EDITOR);
+            pm.setJoinedAt(Instant.now());
+            projectMembersRepo.save(pm);
+        }
 
         notificationService.sendNotification(
                 assignee,

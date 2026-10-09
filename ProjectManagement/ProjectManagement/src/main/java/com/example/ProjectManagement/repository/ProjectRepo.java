@@ -20,9 +20,19 @@ public interface ProjectRepo extends JpaRepository<Project, Long> {
     Page<Project> findByOwner(Users owner, Pageable pageable);
     List<Project> findByCreatedAtBetween(Instant from, Instant to);
 
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN ProjectMembers pm ON pm.projId = p WHERE p.owner = :user OR pm.userId = :user")
+    @Query("SELECT DISTINCT p FROM Project p " +
+           "LEFT JOIN ProjectMembers pm ON pm.projId = p " +
+           "WHERE p.owner = :user " +
+           "OR pm.userId = :user " +
+           "OR p.projectId IN (SELECT t.projId.projectId FROM TaskAssignment ta JOIN ta.taskId t WHERE ta.userId = :user) " +
+           "OR p.projectId IN (SELECT t.projId.projectId FROM Task t WHERE t.createdBy = :user)")
     Page<Project> findAccessibleProjects(@Param("user") Users user, Pageable pageable);
 
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN ProjectMembers pm ON pm.projId = p WHERE p.owner = :user OR pm.userId = :user")
+    @Query("SELECT DISTINCT p FROM Project p " +
+           "LEFT JOIN ProjectMembers pm ON pm.projId = p " +
+           "WHERE p.owner = :user " +
+           "OR pm.userId = :user " +
+           "OR p.projectId IN (SELECT t.projId.projectId FROM TaskAssignment ta JOIN ta.taskId t WHERE ta.userId = :user) " +
+           "OR p.projectId IN (SELECT t.projId.projectId FROM Task t WHERE t.createdBy = :user)")
     List<Project> findAccessibleProjects(@Param("user") Users user);
 }

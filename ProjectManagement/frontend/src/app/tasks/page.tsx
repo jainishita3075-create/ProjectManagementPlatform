@@ -85,9 +85,10 @@ export default function TasksPage() {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [projRes, usersRes] = await Promise.all([
+            const [projRes, usersRes, tasksRes] = await Promise.all([
                 apiFetch<PagedResponse<Project>>("/api/projects?size=50"),
                 apiFetch<{ userId: number; username: string; name: string; email: string }[]>("/api/users"),
+                apiFetch<Task[]>("/api/tasks"),
             ]);
 
             if (usersRes.success && usersRes.data) {
@@ -99,7 +100,11 @@ export default function TasksPage() {
                 if (projRes.data.content.length > 0 && !createProjectId) {
                     setCreateProjectId(projRes.data.content[0].projectId.toString());
                 }
+            }
 
+            if (tasksRes.success && Array.isArray(tasksRes.data)) {
+                setTasks(tasksRes.data);
+            } else if (projRes.success && projRes.data) {
                 const taskPromises = projRes.data.content.map(async (p) => {
                     try {
                         const tRes = await apiFetch<PagedResponse<Task>>(`/api/tasks/project/${p.projectId}?size=50`);

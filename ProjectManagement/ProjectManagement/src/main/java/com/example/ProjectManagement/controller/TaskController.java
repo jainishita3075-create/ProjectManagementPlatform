@@ -34,6 +34,13 @@ public class TaskController {
         return ApiResponse.success("Task created successfully", response);
     }
 
+    @GetMapping
+    public ApiResponse<List<TaskResponse>> getAllAccessibleTasks(Authentication authentication) {
+        String username = authentication.getName();
+        List<TaskResponse> tasks = taskService.getAccessibleTasks(username);
+        return ApiResponse.success("Tasks retrieved successfully", tasks);
+    }
+
     @GetMapping("/project/{projectId}")
     public ApiResponse<PagedResponse<TaskResponse>> getTasksForProject(
             @PathVariable Long projectId,

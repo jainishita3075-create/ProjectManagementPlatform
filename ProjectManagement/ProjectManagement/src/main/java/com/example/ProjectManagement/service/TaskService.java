@@ -9,6 +9,7 @@ import com.example.ProjectManagement.exception.BadRequestException;
 import com.example.ProjectManagement.exception.ResourceNotFoundException;
 import com.example.ProjectManagement.exception.UnauthorizedActionException;
 import com.example.ProjectManagement.model.Entity.Project;
+import com.example.ProjectManagement.model.Entity.ProjectMembers;
 import com.example.ProjectManagement.model.Entity.Task;
 import com.example.ProjectManagement.model.Entity.TaskAssignment;
 import com.example.ProjectManagement.model.Entity.Users;
@@ -55,7 +56,7 @@ public class TaskService {
     private ProjectMembersRepo projectMembersRepo;
 
     @Transactional
-    @CacheEvict(value = "projectTasks", allEntries = true)
+    @CacheEvict(value = {"projectTasks", "projects", "projectById", "projectMembers"}, allEntries = true)
     public TaskResponse createTask(CreateTaskRequest request, String username) {
         Users user = userRepo.findByUserName(username);
         if (user == null) {
@@ -101,6 +102,16 @@ public class TaskService {
                 assignment.setDescription("Assigned during task creation");
                 assignementRepo.save(assignment);
 
+                // Auto-enroll assignee as a project member if not already present
+                if (!projectMembersRepo.existsByProjIdAndUserId(project, assignee)) {
+                    ProjectMembers pm = new ProjectMembers();
+                    pm.setProjId(project);
+                    pm.setUserId(assignee);
+                    pm.setMemberRole(ProjectMemberRole.EDITOR);
+                    pm.setJoinedAt(Instant.now());
+                    projectMembersRepo.save(pm);
+                }
+
                 notificationService.sendNotification(
                         assignee,
                         user,
@@ -136,6 +147,16 @@ public class TaskService {
         return taskRepo.findByProjId(project).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<TaskResponse> getAccessibleTasks(String username) {
+        Users user = userRepo.findByUserName(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        boolean isAdmin = user.getRoles() != null && user.getRoles().stream().anyMatch(r -> r.getRole().name().equals("ADMIN"));
+        List<Task> tasks = isAdmin ? taskRepo.findAll() : taskRepo.findAccessibleTasks(user);
+        return tasks.stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     public TaskResponse getTaskById(Long taskId) {
