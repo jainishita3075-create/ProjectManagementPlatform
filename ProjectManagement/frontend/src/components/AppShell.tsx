@@ -38,6 +38,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isRegisterUserOpen, setIsRegisterUserOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [globalQuery, setGlobalQuery] = useState("");
     const [searchResults, setSearchResults] = useState<Project[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -45,8 +46,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!isAuthenticated) {
             router.push("/login");
+        } else {
+            // Check if current user has ADMIN role
+            apiFetch<{ userId: number; username: string; roles: string[] }>("/api/users/me")
+                .then((res) => {
+                    if (res.success && res.data) {
+                        const hasAdminRole = res.data.roles && res.data.roles.some((r) => r.toUpperCase().includes("ADMIN"));
+                        setIsAdmin(!!hasAdminRole || username?.toLowerCase() === "admin");
+                    } else if (username?.toLowerCase() === "admin") {
+                        setIsAdmin(true);
+                    }
+                })
+                .catch(() => {
+                    if (username?.toLowerCase() === "admin") setIsAdmin(true);
+                });
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, username, router]);
 
     useEffect(() => {
         if (!globalQuery.trim()) {
@@ -183,15 +198,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         )}
                     </div>
 
-                    {/* Actions: Add User, Theme Toggle & Notifications */}
+                    {/* Actions: Add User (Admin only), Theme Toggle & Notifications */}
                     <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setIsRegisterUserOpen(true)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-zinc-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-sm transition-all cursor-pointer"
-                        >
-                            <UserPlus className="w-3.5 h-3.5" />
-                            <span>Add User</span>
-                        </button>
+                        {isAdmin && (
+                            <button
+                                onClick={() => setIsRegisterUserOpen(true)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-zinc-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                            >
+                                <UserPlus className="w-3.5 h-3.5" />
+                                <span>Add User</span>
+                            </button>
+                        )}
 
                         <button
                             onClick={toggleTheme}

@@ -58,43 +58,70 @@ public class DataSeeder {
                 System.out.println(">>> DataSeeder: Created Admin user (admin / " + defaultPassword + ")");
             }
 
-            Users john = userRepo.findByUserName("john_doe");
-            if (john == null) {
-                john = new Users();
-                john.setName("John Doe");
-                john.setEmail("john@example.com");
-                john.setUserName("john_doe");
-                john.setPasswordHash(passwordEncoder.encode(defaultPassword));
-                john.setActive(true);
-                john.setEmailVerified(true);
-                john.setRoles(Set.of(managerRole));
-                john = userRepo.save(john);
+            Users ayan = userRepo.findByUserName("ayan_verma");
+            if (ayan == null) {
+                // Also check if legacy john_doe exists to migrate
+                Users legacy = userRepo.findByUserName("john_doe");
+                if (legacy != null) {
+                    legacy.setName("Ayan Verma");
+                    legacy.setEmail("ayan@example.com");
+                    legacy.setUserName("ayan_verma");
+                    ayan = userRepo.save(legacy);
+                } else {
+                    ayan = new Users();
+                    ayan.setName("Ayan Verma");
+                    ayan.setEmail("ayan@example.com");
+                    ayan.setUserName("ayan_verma");
+                    ayan.setPasswordHash(passwordEncoder.encode(defaultPassword));
+                    ayan.setActive(true);
+                    ayan.setEmailVerified(true);
+                    ayan.setRoles(Set.of(managerRole));
+                    ayan = userRepo.save(ayan);
+                }
             }
 
-            Users sarah = userRepo.findByUserName("sarah_connor");
-            if (sarah == null) {
-                sarah = new Users();
-                sarah.setName("Sarah Connor");
-                sarah.setEmail("sarah@example.com");
-                sarah.setUserName("sarah_connor");
-                sarah.setPasswordHash(passwordEncoder.encode(defaultPassword));
-                sarah.setActive(true);
-                sarah.setEmailVerified(true);
-                sarah.setRoles(Set.of(memberRole));
-                sarah = userRepo.save(sarah);
+            Users rhea = userRepo.findByUserName("rhea_gupta");
+            if (rhea == null) {
+                // Also check if legacy sarah_connor exists to migrate
+                Users legacy = userRepo.findByUserName("sarah_connor");
+                if (legacy != null) {
+                    legacy.setName("Rhea Gupta");
+                    legacy.setEmail("rhea@example.com");
+                    legacy.setUserName("rhea_gupta");
+                    rhea = userRepo.save(legacy);
+                } else {
+                    rhea = new Users();
+                    rhea.setName("Rhea Gupta");
+                    rhea.setEmail("rhea@example.com");
+                    rhea.setUserName("rhea_gupta");
+                    rhea.setPasswordHash(passwordEncoder.encode(defaultPassword));
+                    rhea.setActive(true);
+                    rhea.setEmailVerified(true);
+                    rhea.setRoles(Set.of(memberRole));
+                    rhea = userRepo.save(rhea);
+                }
             }
 
-            Users alex = userRepo.findByUserName("alex_turner");
-            if (alex == null) {
-                alex = new Users();
-                alex.setName("Alex Turner");
-                alex.setEmail("alex@example.com");
-                alex.setUserName("alex_turner");
-                alex.setPasswordHash(passwordEncoder.encode(defaultPassword));
-                alex.setActive(true);
-                alex.setEmailVerified(true);
-                alex.setRoles(Set.of(memberRole));
-                alex = userRepo.save(alex);
+            Users tanvi = userRepo.findByUserName("tanvi_sharma");
+            if (tanvi == null) {
+                // Also check if legacy alex_turner exists to migrate
+                Users legacy = userRepo.findByUserName("alex_turner");
+                if (legacy != null) {
+                    legacy.setName("Tanvi Sharma");
+                    legacy.setEmail("tanvi@example.com");
+                    legacy.setUserName("tanvi_sharma");
+                    tanvi = userRepo.save(legacy);
+                } else {
+                    tanvi = new Users();
+                    tanvi.setName("Tanvi Sharma");
+                    tanvi.setEmail("tanvi@example.com");
+                    tanvi.setUserName("tanvi_sharma");
+                    tanvi.setPasswordHash(passwordEncoder.encode(defaultPassword));
+                    tanvi.setActive(true);
+                    tanvi.setEmailVerified(true);
+                    tanvi.setRoles(Set.of(memberRole));
+                    tanvi = userRepo.save(tanvi);
+                }
             }
 
             Project project = projectRepo.findAll().stream()
@@ -115,14 +142,14 @@ public class DataSeeder {
 
                 ProjectMembers pm1 = new ProjectMembers();
                 pm1.setProjId(project);
-                pm1.setUserId(sarah);
+                pm1.setUserId(rhea);
                 pm1.setMemberRole(ProjectMemberRole.EDITOR);
                 pm1.setJoinedAt(Instant.now());
                 projectMembersRepo.save(pm1);
 
                 ProjectMembers pm2 = new ProjectMembers();
                 pm2.setProjId(project);
-                pm2.setUserId(alex);
+                pm2.setUserId(tanvi);
                 pm2.setMemberRole(ProjectMemberRole.VIEWER);
                 pm2.setJoinedAt(Instant.now());
                 projectMembersRepo.save(pm2);
@@ -141,7 +168,7 @@ public class DataSeeder {
 
                 TaskAssignment a1 = new TaskAssignment();
                 a1.setTaskId(t1);
-                a1.setUserId(sarah);
+                a1.setUserId(rhea);
                 a1.setAssignedBy(admin);
                 a1.setStatus(AssignmentStatus.ACCEPTED);
                 a1.setAssignedAt(Instant.now());
@@ -186,7 +213,7 @@ public class DataSeeder {
 
                 TaskAssignment a2 = new TaskAssignment();
                 a2.setTaskId(t4);
-                a2.setUserId(alex);
+                a2.setUserId(tanvi);
                 a2.setAssignedBy(admin);
                 a2.setStatus(AssignmentStatus.ACCEPTED);
                 a2.setAssignedAt(Instant.now());
